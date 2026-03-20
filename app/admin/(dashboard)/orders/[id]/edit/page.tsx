@@ -22,13 +22,6 @@ export default async function EditOrderPage({ params }: PageProps) {
     notFound()
   }
 
-  // Get users for dropdown
-  const { data: users } = await supabase
-    .from('users')
-    .select('id, name, email')
-    .eq('status', 'active')
-    .order('name')
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -45,7 +38,7 @@ export default async function EditOrderPage({ params }: PageProps) {
       </div>
 
       <div className="max-w-2xl">
-        <OrderForm order={order} users={users || []} />
+        <OrderForm order={order} />
       </div>
     </div>
   )

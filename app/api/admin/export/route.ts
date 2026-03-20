@@ -47,28 +47,20 @@ export async function GET(request: NextRequest) {
   if (type === 'orders') {
     const { data: orders } = await supabase
       .from('orders')
-      .select('*, users(name, email)')
+      .select('id, first_name, last_name, reading_type, created_at, updated_at')
       .order('created_at', { ascending: false })
 
     if (!orders) {
       return NextResponse.json({ error: 'No data found' }, { status: 404 })
     }
 
-    const flattenedOrders = orders.map(order => ({
-      id: order.id,
-      order_number: order.order_number,
-      customer_name: order.users?.name || '',
-      customer_email: order.users?.email || '',
-      status: order.status,
-      total_amount: order.total_amount,
-      payment_method: order.payment_method || '',
-      shipping_address: order.shipping_address?.replace(/\n/g, ' ') || '',
-      created_at: order.created_at,
-    }))
-
-    const csv = convertToCSV(flattenedOrders, [
-      'id', 'order_number', 'customer_name', 'customer_email', 'status', 
-      'total_amount', 'payment_method', 'shipping_address', 'created_at'
+    const csv = convertToCSV(orders, [
+      'id',
+      'first_name',
+      'last_name',
+      'reading_type',
+      'created_at',
+      'updated_at',
     ])
 
     return new NextResponse(csv, {

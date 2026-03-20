@@ -9,15 +9,10 @@ import { DeleteConfirmModal } from './delete-confirm-modal'
 
 interface Order {
   id: string
-  order_number: string
-  user_id: string
-  status: string
-  total_amount: number
+  first_name: string
+  last_name: string
+  reading_type: string
   created_at: string
-  users: {
-    name: string | null
-    email: string
-  } | null
 }
 
 interface OrdersTableProps {
@@ -33,30 +28,6 @@ function formatDate(date: string) {
     day: 'numeric',
     year: 'numeric',
   })
-}
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount)
-}
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case 'completed':
-      return 'bg-success/10 text-success'
-    case 'pending':
-      return 'bg-warning/10 text-warning-foreground'
-    case 'processing':
-      return 'bg-primary/10 text-primary'
-    case 'shipped':
-      return 'bg-chart-4/10 text-chart-4'
-    case 'cancelled':
-      return 'bg-destructive/10 text-destructive'
-    default:
-      return 'bg-muted text-muted-foreground'
-  }
 }
 
 export function OrdersTable({ orders, currentPage, totalPages, totalCount }: OrdersTableProps) {
@@ -92,10 +63,9 @@ export function OrdersTable({ orders, currentPage, totalPages, totalCount }: Ord
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="text-left text-sm font-medium text-muted-foreground px-4 py-3">Order</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-4 py-3">Customer</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-4 py-3">Status</th>
-                <th className="text-right text-sm font-medium text-muted-foreground px-4 py-3">Total</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-4 py-3">First Name</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-4 py-3">Last Name</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-4 py-3">Reading Type</th>
                 <th className="text-left text-sm font-medium text-muted-foreground px-4 py-3">Date</th>
                 <th className="text-right text-sm font-medium text-muted-foreground px-4 py-3">Actions</th>
               </tr>
@@ -103,36 +73,16 @@ export function OrdersTable({ orders, currentPage, totalPages, totalCount }: Ord
             <tbody className="divide-y divide-border">
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                     No orders found
                   </td>
                 </tr>
               ) : (
                 orders.map((order) => (
                   <tr key={order.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3">
-                      <span className="font-medium text-card-foreground">
-                        {order.order_number}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className="text-sm font-medium text-card-foreground">
-                          {order.users?.name || 'No name'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{order.users?.email}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(order.status)}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-medium text-card-foreground">
-                        {formatCurrency(order.total_amount)}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3 text-sm text-card-foreground font-medium">{order.first_name}</td>
+                    <td className="px-4 py-3 text-sm text-card-foreground font-medium">{order.last_name}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{order.reading_type}</td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">{formatDate(order.created_at)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
@@ -201,7 +151,7 @@ export function OrdersTable({ orders, currentPage, totalPages, totalCount }: Ord
         onConfirm={handleDelete}
         loading={deleting}
         title="Delete Order"
-        description={`Are you sure you want to delete order ${deleteModal.order?.order_number}? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${deleteModal.order?.first_name} ${deleteModal.order?.last_name}? This action cannot be undone.`}
       />
     </>
   )

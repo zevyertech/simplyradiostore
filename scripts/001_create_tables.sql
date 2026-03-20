@@ -50,17 +50,17 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- Orders table
 CREATE TABLE IF NOT EXISTS public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  order_number TEXT UNIQUE NOT NULL,
-  user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'shipped', 'completed', 'cancelled')),
-  total_amount NUMERIC(10, 2) NOT NULL DEFAULT 0,
-  items JSONB,
-  shipping_address TEXT,
-  payment_method TEXT CHECK (payment_method IN ('card', 'paypal', 'bank_transfer', 'cash')),
-  notes TEXT,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  reading_type TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Keep existing projects compatible by adding new required columns.
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS first_name TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS last_name TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS reading_type TEXT;
 
 -- Enable Row Level Security
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
@@ -107,9 +107,9 @@ CREATE POLICY "auth can delete orders" ON public.orders
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
 CREATE INDEX IF NOT EXISTS idx_users_status ON public.users(status);
-CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
-CREATE INDEX IF NOT EXISTS idx_orders_order_number ON public.orders(order_number);
+CREATE INDEX IF NOT EXISTS idx_orders_first_name ON public.orders(first_name);
+CREATE INDEX IF NOT EXISTS idx_orders_last_name ON public.orders(last_name);
+CREATE INDEX IF NOT EXISTS idx_orders_reading_type ON public.orders(reading_type);
 CREATE INDEX IF NOT EXISTS idx_admin_users_auth_user_id ON public.admin_users(auth_user_id);
 
 -- Create triggers for updated_at

@@ -1,18 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { OrderForm } from '@/components/admin/order-form'
 
 export default async function NewOrderPage() {
-  const supabase = await createClient()
-
-  // Get users for dropdown
-  const { data: users } = await supabase
-    .from('users')
-    .select('id, name, email')
-    .eq('status', 'active')
-    .order('name')
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -29,7 +19,7 @@ export default async function NewOrderPage() {
       </div>
 
       <div className="max-w-2xl">
-        <OrderForm users={users || []} />
+        <OrderForm />
       </div>
     </div>
   )

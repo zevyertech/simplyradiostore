@@ -2,13 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  LayoutDashboard, 
-  Users, 
-  ShoppingCart, 
-  Settings,
-  Shield
-} from 'lucide-react'
+import { LayoutDashboard, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface AdminUser {
@@ -27,21 +21,6 @@ const navItems = [
     label: 'Dashboard',
     href: '/admin',
     icon: LayoutDashboard,
-  },
-  {
-    label: 'Users',
-    href: '/admin/users',
-    icon: Users,
-  },
-  {
-    label: 'Orders',
-    href: '/admin/orders',
-    icon: ShoppingCart,
-  },
-  {
-    label: 'Settings',
-    href: '/admin/settings',
-    icon: Settings,
   },
 ]
 

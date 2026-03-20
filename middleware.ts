@@ -36,6 +36,13 @@ export async function middleware(request: NextRequest) {
 
   // Protect admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
+    // This project now supports orders-only dashboard views.
+    if (request.nextUrl.pathname.startsWith('/admin/users') || request.nextUrl.pathname.startsWith('/admin/settings')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.redirect(url)
+    }
+
     // If no session and trying to access admin (except login/signup), redirect to login
     if (!user && !request.nextUrl.pathname.includes('/admin/login') && !request.nextUrl.pathname.includes('/admin/signup')) {
       const url = request.nextUrl.clone()
