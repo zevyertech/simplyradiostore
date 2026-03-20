@@ -53,21 +53,7 @@ export default function AdminSignupPage() {
       }
 
       if (authData.user) {
-        // Create admin user record
-        const { error: adminError } = await supabase
-          .from('admin_users')
-          .insert({
-            auth_user_id: authData.user.id,
-            email: authData.user.email,
-            role: 'admin',
-            is_active: true,
-          })
-
-        if (adminError) {
-          console.error('Error creating admin record:', adminError)
-          // Continue anyway - the auth account was created
-        }
-
+        // admin_users row is auto-created by a database trigger on auth.users
         setSuccess(true)
       }
     } catch (err) {

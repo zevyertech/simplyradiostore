@@ -10,6 +10,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Auto-create admin_users profile whenever a new auth user signs up
+CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.admin_users (auth_user_id, email, role, is_active)
+  VALUES (NEW.id, NEW.email, 'admin', true)
+  ON CONFLICT (auth_user_id) DO NOTHING;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Admin users table for dashboard authentication/authorization
 CREATE TABLE IF NOT EXISTS public.admin_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -115,3 +127,9 @@ DROP TRIGGER IF EXISTS update_orders_updated_at ON public.orders;
 CREATE TRIGGER update_orders_updated_at
   BEFORE UPDATE ON public.orders
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Create auth trigger to provision admin_users rows automatically
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_auth_user();
