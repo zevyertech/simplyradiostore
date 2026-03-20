@@ -16,15 +16,6 @@ interface OrderFormProps {
   order?: Order
 }
 
-const READING_TYPE_OPTIONS = [
-  'General',
-  'Love',
-  'Career',
-  'Finance',
-  'Health',
-  'Other',
-]
-
 export function OrderForm({ order }: OrderFormProps) {
   const router = useRouter()
   const supabase = createClient()
@@ -73,11 +64,30 @@ export function OrderForm({ order }: OrderFormProps) {
 
         router.push(`/admin/orders/${order.id}`)
       } else {
-        const { data: newOrder, error: insertError } = await supabase
+        // Support both legacy and simplified schemas.
+        let { data: newOrder, error: insertError } = await supabase
           .from('orders')
-          .insert(orderData)
+          .insert({
+            ...orderData,
+            order_number: `ORD-${Date.now()}`,
+          })
           .select()
           .single()
+
+        if (
+          insertError &&
+          (insertError.code === '42703' ||
+            insertError.message.toLowerCase().includes('order_number') ||
+            insertError.message.toLowerCase().includes('schema cache'))
+        ) {
+          const retry = await supabase
+            .from('orders')
+            .insert(orderData)
+            .select()
+            .single()
+          newOrder = retry.data
+          insertError = retry.error
+        }
 
         if (insertError) {
           setError(insertError.message)
@@ -140,19 +150,15 @@ export function OrderForm({ order }: OrderFormProps) {
         <label htmlFor="reading_type" className="block text-sm font-medium text-card-foreground mb-2">
           Reading Type <span className="text-destructive">*</span>
         </label>
-        <select
+        <input
           id="reading_type"
+          type="text"
           value={formData.reading_type}
           onChange={(e) => setFormData({ ...formData, reading_type: e.target.value })}
-          className="w-full px-4 py-2.5 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+          placeholder="Enter reading type"
           required
-        >
-          {READING_TYPE_OPTIONS.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">

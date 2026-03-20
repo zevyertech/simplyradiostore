@@ -36,6 +36,13 @@ export async function middleware(request: NextRequest) {
 
   // Protect admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
+    // Account creation is disabled in this streamlined flow.
+    if (request.nextUrl.pathname.startsWith('/admin/signup')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/login'
+      return NextResponse.redirect(url)
+    }
+
     // This project now supports orders-only dashboard views.
     if (request.nextUrl.pathname.startsWith('/admin/users') || request.nextUrl.pathname.startsWith('/admin/settings')) {
       const url = request.nextUrl.clone()
